@@ -38,13 +38,27 @@ class PushLatestHouseData extends Command
     public function handle()
     {
         $redis = app('redis.connection');
-        $url = 'https://m.591.com.tw/mobile-list.html?type=rent&dropDown=1&version=2017&firstRow=0&kind=2&price=10000$_15000$&mrtstation=168&mrtcoods=4260,4261,4262,4263,4264,4187,4221,4267,4181&o=32&searchtype=4&mrt=1';
+        $url = 'https://m.591.com.tw/mobile-list.html?';
+        $search = [
+            'type' => 'rent',
+            'dropDown' => '1',
+            'version' => '2017',
+            'firstRow' => '0',
+            'kind' => '2',
+            'price' => '10000$_15000',
+            'mrtstation' => '168',
+            'mrtcoods' => '4260,4261,4262,4263,4264,4187,4221,4267,4181',
+            'o' => '32',
+            'searchtype' => '4',
+            'mrt' => '1',
+        ];
+        $url = $url . http_build_query($search);
         $houseData = json_decode($this->_curlExec($url), true);
         $latestTitle = $redis->get('latestTitle');
-        // if ($latestTitle == $houseData['data'][0]['title']) {
-        //     echo "{$latestTitle} \n 尚未有更新的租屋資訊";
-        //     return false;
-        // }
+        if ($latestTitle == $houseData['data'][0]['title']) {
+            echo "{$latestTitle} \n 尚未有更新的租屋資訊";
+            return false;
+        }
 
         $message = "\n";
         $message .= "{$houseData['data'][0]['title']}\n";
