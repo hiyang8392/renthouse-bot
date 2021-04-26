@@ -38,6 +38,7 @@ class PushLatestHouseData extends Command
     public function handle()
     {
         $redis = app('redis.connection');
+        $now = date('Y-m-d H:i:s');
         $url = 'https://m.591.com.tw/mobile-list.html?';
         $search = [
             'type' => 'rent',
@@ -56,7 +57,7 @@ class PushLatestHouseData extends Command
         $houseData = json_decode($this->_curlExec($url), true);
         $latestTitle = $redis->get('latestTitle');
         if ($latestTitle == $houseData['data'][0]['title']) {
-            echo "{$latestTitle} \n 尚未有更新的租屋資訊";
+            echo "{$now}: {$latestTitle} - 尚未有更新的租屋資訊 \n";
             return false;
         }
 
@@ -66,11 +67,10 @@ class PushLatestHouseData extends Command
         $message .= "{$houseData['data'][0]['address']}\n";
         $message .= "{$houseData['data'][0]['price']}\n";
         $message .= "https://rent.591.com.tw/rent-detail-{$houseData['data'][0]['post_id']}.html";
-
         $this->sendSlack($message);
         $redis->set('latestTitle', $houseData['data'][0]['title']);
-        echo 'finish';
 
+        echo "{$now}: {$houseData['data'][0]['title']} \n";
         return true;
     }
 

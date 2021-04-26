@@ -24,7 +24,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        $today = date('Ymd');
+        $schedule->command('command:push')
+            ->appendOutputTo("{$today}_push_591.log");
     }
 
     /**
